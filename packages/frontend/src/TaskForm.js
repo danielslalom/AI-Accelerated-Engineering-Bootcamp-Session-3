@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { TextField, Button, Paper, Typography, Box } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import SaveIcon from '@mui/icons-material/Save';
+import './App.css';
 
 function TaskForm({ onSave, initialTask }) {
   const [title, setTitle] = useState(initialTask?.title || '');
@@ -166,17 +167,11 @@ function TaskForm({ onSave, initialTask }) {
                 size="small"
                 onClick={() => setPriority(p)}
                 data-testid={`priority-${p}`}
+                className={priority === p ? 'priority-button priority-button-selected' : 'priority-button'}
                 sx={{
                   flex: 1,
-                  backgroundColor: priority === p ? '#07F3E6' : '#7A7A7A',
-                  color: '#fff',
-                  fontWeight: 600,
                   borderRadius: 2,
                   textTransform: 'none',
-                  '&:hover': {
-                    backgroundColor: priority === p ? '#06d9d0' : '#666666',
-                  },
-                  transition: 'all 0.2s ease-in-out',
                 }}
               >
                 {p}
