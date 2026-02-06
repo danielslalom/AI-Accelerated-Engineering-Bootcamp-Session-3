@@ -46,6 +46,7 @@ db.exec(`
     title TEXT NOT NULL,
     description TEXT,
     due_date DATE,
+    priority TEXT CHECK(priority IN ('P1', 'P2', 'P3')) DEFAULT 'P3',
     completed BOOLEAN DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )
@@ -91,12 +92,16 @@ app.get('/api/tasks', (req, res) => {
 // POST /api/tasks (create)
 app.post('/api/tasks', (req, res) => {
   try {
-    const { title, description, due_date } = req.body;
+    const { title, description, due_date, priority } = req.body;
     if (!title || typeof title !== 'string' || title.trim() === '') {
       return res.status(400).json({ error: 'Task title is required' });
     }
-    const stmt = db.prepare('INSERT INTO tasks (title, description, due_date) VALUES (?, ?, ?)');
-    const result = stmt.run(title, description || '', due_date || null);
+    // Validate priority
+    const validPriorities = ['P1', 'P2', 'P3'];
+    const taskPriority = validPriorities.includes(priority) ? priority : 'P3';
+    
+    const stmt = db.prepare('INSERT INTO tasks (title, description, due_date, priority) VALUES (?, ?, ?, ?)');
+    const result = stmt.run(title, description || '', due_date || null, taskPriority);
     const newTask = db.prepare('SELECT * FROM tasks WHERE id = ?').get(result.lastInsertRowid);
     res.status(201).json(newTask);
   } catch (error) {
@@ -120,12 +125,16 @@ app.get('/api/tasks/:id', (req, res) => {
 // PUT /api/tasks/:id (edit)
 app.put('/api/tasks/:id', (req, res) => {
   try {
-    const { title, description, due_date } = req.body;
+    const { title, description, due_date, priority } = req.body;
     if (!title || typeof title !== 'string' || title.trim() === '') {
       return res.status(400).json({ error: 'Task title is required' });
     }
-    const stmt = db.prepare('UPDATE tasks SET title = ?, description = ?, due_date = ? WHERE id = ?');
-    const result = stmt.run(title, description || '', due_date || null, req.params.id);
+    // Validate priority
+    const validPriorities = ['P1', 'P2', 'P3'];
+    const taskPriority = validPriorities.includes(priority) ? priority : 'P3';
+    
+    const stmt = db.prepare('UPDATE tasks SET title = ?, description = ?, due_date = ?, priority = ? WHERE id = ?');
+    const result = stmt.run(title, description || '', due_date || null, taskPriority, req.params.id);
     if (result.changes === 0) return res.status(404).json({ error: 'Task not found' });
     const updatedTask = db.prepare('SELECT * FROM tasks WHERE id = ?').get(req.params.id);
     res.json(updatedTask);

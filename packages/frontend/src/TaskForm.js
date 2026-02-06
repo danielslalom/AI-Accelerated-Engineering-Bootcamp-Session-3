@@ -7,6 +7,7 @@ function TaskForm({ onSave, initialTask }) {
   const [title, setTitle] = useState(initialTask?.title || '');
   const [description, setDescription] = useState(initialTask?.description || '');
   const [dueDate, setDueDate] = useState(initialTask?.due_date || '');
+  const [priority, setPriority] = useState(initialTask?.priority || 'P3');
   const [error, setError] = useState(null);
 
   // Helper to normalize date string to YYYY-MM-DD format
@@ -30,10 +31,12 @@ function TaskForm({ onSave, initialTask }) {
       setTitle(initialTask.title || '');
       setDescription(initialTask.description || '');
       setDueDate(normalizeDateString(initialTask.due_date));
+      setPriority(initialTask.priority || 'P3');
     } else {
       setTitle('');
       setDescription('');
       setDueDate('');
+      setPriority('P3');
     }
   }, [initialTask]);
 
@@ -44,10 +47,11 @@ function TaskForm({ onSave, initialTask }) {
       return;
     }
     setError(null);
-    await onSave({ title, description, due_date: dueDate });
+    await onSave({ title, description, due_date: dueDate, priority });
     setTitle('');
     setDescription('');
     setDueDate('');
+    setPriority('P3');
   };
 
   return (
@@ -143,6 +147,43 @@ function TaskForm({ onSave, initialTask }) {
             }
           }}
         />
+        <Box>
+          <Typography 
+            variant="body2" 
+            sx={{ 
+              fontWeight: 500,
+              mb: 1,
+              color: '#424242'
+            }}
+          >
+            Priority
+          </Typography>
+          <Box display="flex" gap={1}>
+            {['P1', 'P2', 'P3'].map((p) => (
+              <Button
+                key={p}
+                variant="contained"
+                size="small"
+                onClick={() => setPriority(p)}
+                data-testid={`priority-${p}`}
+                sx={{
+                  flex: 1,
+                  backgroundColor: priority === p ? '#07F3E6' : '#7A7A7A',
+                  color: '#fff',
+                  fontWeight: 600,
+                  borderRadius: 2,
+                  textTransform: 'none',
+                  '&:hover': {
+                    backgroundColor: priority === p ? '#06d9d0' : '#666666',
+                  },
+                  transition: 'all 0.2s ease-in-out',
+                }}
+              >
+                {p}
+              </Button>
+            ))}
+          </Box>
+        </Box>
         {error && <Typography color="error" sx={{ fontWeight: 500, fontSize: '0.875rem' }}>{error}</Typography>}
         <Box display="flex" gap={2}>
           <Button 
